@@ -49,6 +49,10 @@ public class SchedulePattern {
     public Map<LocalDate, Boolean> workDays(int lineNumber, LocalDate startDate, int daysToPrint) {
         Map<LocalDate, Boolean> output = new LinkedHashMap<>();
 
+        for (int i = 0; i < daysToPrint; i++) {
+            output.put(startDate.plusDays(i), isWorkingDay(lineNumber, startDate.plusDays(i)));
+        }
+
         return output;
     }
 }
