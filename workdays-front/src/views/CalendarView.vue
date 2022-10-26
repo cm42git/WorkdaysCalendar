@@ -15,13 +15,24 @@
       </v-toolbar-title></v-toolbar
     >
     <v-sheet height="600">
-      <v-calendar ref="calendar" v-model="value" :events="events"></v-calendar>
-      <!-- @change="updateRange" -->
+      <v-calendar
+        ref="calendar"
+        v-model="value"
+        :events="events"
+        @change="setup"
+      ></v-calendar>
     </v-sheet>
-    <v-btn @click="setup">Click</v-btn>
+    <!-- <v-btn @click="setup">Click</v-btn> -->
   </div>
 </template>
+
 <script>
+Date.prototype.addDays = function (days) {
+  var date = new Date(this.valueOf());
+  date.setDate(date.getDate() + days);
+  return date;
+};
+
 export default {
   name: "calendar-view",
   data() {
@@ -125,24 +136,57 @@ export default {
     getWorkdayNum(line, date) {
       return (date - this.schedData.startLineOne + line - 1) % this.daysTotal;
     },
-    getStartDate(line) {
-      const n = new Date();
+    getStartDate(line, date) {
+      const n = date;
       const startOfMonth = new Date(n.getFullYear(), n.getMonth(), 1);
-      const lineDayMillis =
-        this.getWorkdayNum(line, startOfMonth) * (24 * 60 * 60 * 1000);
-
-      // console.log(this.getWorkdayNum(line, startOfMonth));
-
-      return new Date(startOfMonth - lineDayMillis);
+      return startOfMonth.addDays(
+        -this.getWorkdayNum(line, startOfMonth) - this.daysTotal
+      );
     },
-    setup() {
-      this.setScheduleData(7, 7, 6, 5, new Date(2022,9,1));
-      console.log(this.schedData);
-      for (let index = 1; index <= this.daysTotal; index++) {
-        
-        console.log(index + ": " + this.getStartDate(index));
-        
+    setup({ start }) {
+      this.setScheduleData(7, 6, 5, 4, new Date(2022, 9, 1));
+      const line = 1;
+      const n = new Date(`${start.date}T00:00:00`);
+
+      const daysBeforeFirst =
+        (new Date(n.getFullYear(), n.getMonth(), 1) -
+          this.getStartDate(line + 1, n)) /
+        (24 * 60 * 60 * 1000);
+
+      const events = [];
+      const firstStart = this.getStartDate(line, n);
+
+      for (let i = 0; i <= daysBeforeFirst + 75; i += this.daysTotal) {
+        const oneStart = firstStart.addDays(i);
+        const oneEnd = firstStart.addDays(i + this.schedData.daysOn - 1);
+
+        events.push({
+          name: "Work",
+          start: oneStart,
+          end: oneEnd,
+          timed: false,
+        });
+
+        if (this.schedData.daysOnAlt > 0) {
+          const twoStart = firstStart.addDays(
+            i + this.schedData.daysOn + this.schedData.daysOff
+          );
+          const twoEnd = firstStart.addDays(
+            i +
+              this.schedData.daysOn +
+              this.schedData.daysOff +
+              this.schedData.daysOnAlt -
+              1
+          );
+          events.push({
+            name: "Work",
+            start: twoStart,
+            end: twoEnd,
+            timed: false,
+          });
+        }
       }
+      this.events = events;
     },
   },
 };
