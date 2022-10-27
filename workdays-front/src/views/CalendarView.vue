@@ -144,13 +144,13 @@ export default {
       );
     },
     setup({ start }) {
-      this.setScheduleData(7, 6, 5, 4, new Date(2022, 9, 1));
+      this.setScheduleData(5, 2, 0, 0, new Date(2022, 9, 3));
       const line = 1;
       const n = new Date(`${start.date}T00:00:00`);
 
       const daysBeforeFirst =
         (new Date(n.getFullYear(), n.getMonth(), 1) -
-          this.getStartDate(line + 1, n)) /
+          this.getStartDate(line - 1, n)) /
         (24 * 60 * 60 * 1000);
 
       const events = [];

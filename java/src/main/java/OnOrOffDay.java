@@ -31,7 +31,9 @@ public class OnOrOffDay {
 
         // System.out.println("\u2660 \u2661 \u2662 \u2663 \u2664 \u2665 \u2666
         // \u2667");
-        System.out.println(fiveOnTwoOff.workDays(1, LocalDate.of(2022,10,1), 365));
+        System.out.println(fiveOnTwoOff.workDays(1, LocalDate.of(2022, 10, 1), 365));
+        System.out.println("===============");
+        System.out.println(fiveOnTwoOff.listStartEnd(dateToCheck, 8, 1));
     }
 
     // public static boolean onOrOff(int on, int off, int line, LocalDate
