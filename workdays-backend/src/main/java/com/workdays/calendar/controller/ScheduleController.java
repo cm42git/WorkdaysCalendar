@@ -30,11 +30,11 @@ public class ScheduleController {
             @RequestParam int daysOnAlt,
             @RequestParam int daysOffAlt,
             @RequestParam @DateTimeFormat(iso=ISO.DATE) LocalDate startLineOne,
-            @RequestParam @DateTimeFormat(iso = ISO.DATE) LocalDate begin,
+            @RequestParam @DateTimeFormat(iso = ISO.DATE) LocalDate beginMonth,
             @RequestParam int numMonths,
             @RequestParam int lineNum) {
         SchedulePattern sched = new SchedulePattern(daysOn, daysOff, daysOnAlt, daysOffAlt, startLineOne);
-        return scheduleService.listStartEnd(sched, begin, numMonths, lineNum);
+        return scheduleService.listStartEnd(sched, beginMonth, numMonths, lineNum);
     }
 
 }

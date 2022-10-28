@@ -32,7 +32,7 @@ Date.prototype.addDays = function (days) {
   date.setDate(date.getDate() + days);
   return date;
 };
-
+import ScheduleService from "@/service/ScheduleService";
 export default {
   name: "calendar-view",
   data() {
@@ -145,9 +145,26 @@ export default {
     },
     setup({ start }) {
       this.setScheduleData(5, 2, 0, 0, new Date(2022, 9, 3));
-      const line = 1;
+      const lineNum = 1;
+      const numMonths = 2;
       const n = new Date(`${start.date}T00:00:00`);
+      // let startEnds;
 
+      ScheduleService.getStartEnd(
+        this.schedData.daysOn,
+        this.schedData.daysOff,
+        this.schedData.daysOnAlt,
+        this.schedData.daysOffAlt,
+        this.schedData.startLineOne.toISOString().substr(0, 10),
+        n.toISOString().substr(0, 10),
+        numMonths,
+        lineNum).then((response) => {
+        // startEnds = response.data;
+        console.log(response.data);
+      });
+      // console.log(startEnds);
+    },
+    /*  jsCalcs() {
       const daysBeforeFirst =
         (new Date(n.getFullYear(), n.getMonth(), 1) -
           this.getStartDate(line - 1, n)) /
@@ -186,8 +203,8 @@ export default {
           });
         }
       }
-      this.events = events;
-    },
+      this.events = events; 
+    }*/
   },
 };
 </script>
