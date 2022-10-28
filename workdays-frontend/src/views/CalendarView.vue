@@ -144,11 +144,11 @@ export default {
       );
     },
     setup({ start }) {
-      this.setScheduleData(5, 2, 0, 0, new Date(2022, 9, 3));
-      const lineNum = 1;
+      this.setScheduleData(7, 7, 0, 0, new Date(2002, 1, 1));
+      const lineNum = 8;
       const numMonths = 2;
       const n = new Date(`${start.date}T00:00:00`);
-      // let startEnds;
+      const events = [];
 
       ScheduleService.getStartEnd(
         this.schedData.daysOn,
@@ -158,11 +158,18 @@ export default {
         this.schedData.startLineOne.toISOString().substr(0, 10),
         n.toISOString().substr(0, 10),
         numMonths,
-        lineNum).then((response) => {
-        // startEnds = response.data;
-        console.log(response.data);
+        lineNum
+      ).then((response) => {
+        response.data.forEach((e) => {
+          events.push({
+            name: "Work",
+            start: e.start,
+            end: e.end,
+            timed: false,
+          });
+        });
       });
-      // console.log(startEnds);
+      this.events = events;
     },
     /*  jsCalcs() {
       const daysBeforeFirst =
