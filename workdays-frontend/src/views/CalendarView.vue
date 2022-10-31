@@ -132,6 +132,7 @@ export default {
       this.schedData.daysOnAlt = altOn;
       this.schedData.daysOffAlt = altOff;
       this.schedData.startLineOne = startOne;
+      this.$store.commit("SET_SCHEDULE", this.schedData);
     },
     getWorkdayNum(line, date) {
       return (date - this.schedData.startLineOne + line - 1) % this.daysTotal;
@@ -167,6 +168,7 @@ export default {
             end: e.end,
             timed: false,
           });
+          
         });
       });
       this.events = events;
