@@ -14,8 +14,19 @@
         {{ $refs.calendar.title }}
       </v-toolbar-title>
       <v-spacer></v-spacer>
-      <SchedInput></SchedInput></v-toolbar
-    >
+      <SchedInput></SchedInput>
+      <v-spacer></v-spacer>
+      <v-text-field
+        :value="this.schedData.lineNum"
+        class="mt-0 pt-0"
+        hide-details
+        single-line
+        type="number"
+        prefix="Line"
+        @change="setLineNum(value)"
+      ></v-text-field>
+      <v-spacer></v-spacer>
+    </v-toolbar>
     <v-sheet height="600">
       <v-calendar
         ref="calendar"
@@ -24,7 +35,7 @@
         @change="setup"
       ></v-calendar>
     </v-sheet>
-    <!-- <v-btn @click="setup">Click</v-btn> -->
+    <v-btn @click="updateEvents">Click</v-btn>
   </div>
 </template>
 
@@ -39,11 +50,12 @@ import SchedInput from "./SchedInput.vue";
 export default {
   name: "calendar-view",
   components: {
-    SchedInput
+    SchedInput,
   },
   data() {
     return {
       value: "",
+      line: 1,
       events: [],
       schedData: {
         daysOn: 0,
@@ -51,10 +63,13 @@ export default {
         daysOnAlt: 0,
         daysOffAlt: 0,
         startLineOne: "2000-01-01",
-        lineNum: 0
+        lineNum: 0,
       },
       displayStart: Date.now(),
     };
+  },
+  created() {
+    this.setScheduleData(7, 6, 5, 4, new Date(2022, 9, 20), 1);
   },
   computed: {
     daysTotal() {
@@ -73,8 +88,8 @@ export default {
     click() {
       // const min = new Date(new Date(`${start.date}`).getMilliseconds() -(7*24*60*60*1000));
       // const max = new Date(new Date(`${end.date}`) + (7 * 24 * 60 * 60 * 1000));
-      console.log(this.$refs.calendar);
-      console.log(this.$refs.calendar);
+      // console.log(this.$refs.calendar);
+      // console.log(this.$refs.calendar);
       // console.log(max);
     },
     setToday() {
@@ -142,6 +157,11 @@ export default {
       this.schedData.lineNum = line;
       this.$store.commit("SET_SCHEDULE", this.schedData);
     },
+    setLineNum(line) {
+      this.schedData.lineNum = line;
+      this.$store.commit("SET_SCHEDULE", this.schedData);
+      this.updateEvents();
+    },
     getWorkdayNum(line, date) {
       return (date - this.schedData.startLineOne + line - 1) % this.daysTotal;
     },
@@ -152,9 +172,32 @@ export default {
         -this.getWorkdayNum(line, startOfMonth) - this.daysTotal
       );
     },
+    updateEvents() {
+      const numMonths = 2;
+      const d = new Date(this.$refs.calendar.start);
+      const events = [];
+      ScheduleService.getStartEnd(
+        this.schedData.daysOn,
+        this.schedData.daysOff,
+        this.schedData.daysOnAlt,
+        this.schedData.daysOffAlt,
+        this.schedData.startLineOne.toISOString().substr(0, 10),
+        d.toISOString().substr(0, 10),
+        numMonths,
+        this.schedData.lineNum
+      ).then((response) => {
+        response.data.forEach((e) => {
+          events.push({
+            name: "Work",
+            start: e.start,
+            end: e.end,
+            timed: false,
+          });
+        });
+      });
+      this.events = events;
+    },
     setup({ start }) {
-      this.setScheduleData(7, 7, 0, 0, new Date(2002, 1, 1),8);
-      const lineNum = 8;
       const numMonths = 2;
       const n = new Date(`${start.date}T00:00:00`);
       const events = [];
@@ -167,7 +210,7 @@ export default {
         this.schedData.startLineOne.toISOString().substr(0, 10),
         n.toISOString().substr(0, 10),
         numMonths,
-        lineNum
+        this.schedData.lineNum
       ).then((response) => {
         response.data.forEach((e) => {
           events.push({
@@ -176,7 +219,6 @@ export default {
             end: e.end,
             timed: false,
           });
-          
         });
       });
       this.events = events;

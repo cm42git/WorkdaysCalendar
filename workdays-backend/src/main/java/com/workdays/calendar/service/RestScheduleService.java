@@ -16,9 +16,9 @@ import com.workdays.calendar.model.StartEndDates;
 public class RestScheduleService implements ScheduleService {
 
     public int lineDayNum(SchedulePattern sched, int lineNum, LocalDate dateToCheck) {
-        int dateCheckNum = (int) sched.startLineOne().until(dateToCheck, ChronoUnit.DAYS);
+        int dateCheckNum = (int) sched.startLineOne().plusDays((long) lineNum - 1).until(dateToCheck, ChronoUnit.DAYS);
         int daysTotal = sched.daysOn() + sched.daysOff() + sched.daysOnAlt() + sched.daysOffAlt();
-        return Math.floorMod((dateCheckNum + lineNum - 1), daysTotal);
+        return Math.floorMod(dateCheckNum, daysTotal);
     }
 
     public boolean isWorkingDay(SchedulePattern sched, int lineNumber, LocalDate dateToCheck) {
@@ -26,12 +26,12 @@ public class RestScheduleService implements ScheduleService {
         int daysTotal = sched.daysOn() + sched.daysOff() + sched.daysOnAlt() + sched.daysOffAlt();
         int daysBack = sched.daysOnAlt() + sched.daysOffAlt();
         // int startLineOneNum = DAY_ZERO_DATE.until(startLineOne, ChronoUnit.DAYS);
-        int dateCheckNum = (int) sched.startLineOne().until(dateToCheck, ChronoUnit.DAYS);
+        int dateCheckNum = (int) sched.startLineOne().plusDays((long) lineNumber - 1).until(dateToCheck, ChronoUnit.DAYS);
 
-        if (Math.floorMod((dateCheckNum + lineNumber - 1), daysTotal) < sched.daysOn()) {
+        if (Math.floorMod(dateCheckNum, daysTotal) < sched.daysOn()) {
             working = true;
         }
-        if ((Math.floorMod((dateCheckNum + lineNumber - 1 + daysBack), daysTotal) < sched.daysOnAlt())) {
+        if ((Math.floorMod((dateCheckNum + daysBack), daysTotal) < sched.daysOnAlt())) {
             working = true;
         }
 
@@ -64,7 +64,7 @@ public class RestScheduleService implements ScheduleService {
             output.add(startEnd);
 
             if (sched.daysOnAlt() > 0) {
-                start = end.plusDays(sched.daysOff());
+                start = end.plusDays(sched.daysOff() + 1);
                 end = start.plusDays(sched.daysOnAlt() - 1);
                 startEnd = new StartEndDates(start, end);
                 output.add(startEnd);

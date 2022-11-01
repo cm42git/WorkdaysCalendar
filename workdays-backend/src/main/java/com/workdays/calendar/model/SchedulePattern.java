@@ -18,7 +18,7 @@ public record SchedulePattern (int daysOn, int daysOff, int daysOnAlt, int daysO
     private final int daysOffAlt;
     private final LocalDate startLineOne; */
 
-    // =if(OR(MOD(B$6-StartSched+$A7-1,daysTotal)<daysOn,MOD(B$6-StartSched+$A7-1+daysBack,daysTotal)<daysOnAlt),"Work","Off")
+    // =if(OR(MOD(B$6-(StartSched+$A7-1),daysTotal)<daysOn,MOD(B$6-(StartSched+$A7-1)+daysBack,daysTotal)<daysOnAlt),"Work","Off")
     // B6=dateToCheck A7=lineNum StartSched=startLineOne
     // daysTotal=(daysOn+daysOff+daysOnAlt+daysOffAlt)
     // daysBack=(daysOnAlt+daysOffAlt)
