@@ -51,6 +51,7 @@ export default {
         daysOnAlt: 0,
         daysOffAlt: 0,
         startLineOne: "2000-01-01",
+        lineNum: 0
       },
       displayStart: Date.now(),
     };
@@ -132,12 +133,13 @@ export default {
         return working;
     }
     */
-    setScheduleData(on, off, altOn, altOff, startOne) {
+    setScheduleData(on, off, altOn, altOff, startOne, line) {
       this.schedData.daysOn = on;
       this.schedData.daysOff = off;
       this.schedData.daysOnAlt = altOn;
       this.schedData.daysOffAlt = altOff;
       this.schedData.startLineOne = startOne;
+      this.schedData.lineNum = line;
       this.$store.commit("SET_SCHEDULE", this.schedData);
     },
     getWorkdayNum(line, date) {
@@ -151,7 +153,7 @@ export default {
       );
     },
     setup({ start }) {
-      this.setScheduleData(7, 7, 0, 0, new Date(2002, 1, 1));
+      this.setScheduleData(7, 7, 0, 0, new Date(2002, 1, 1),8);
       const lineNum = 8;
       const numMonths = 2;
       const n = new Date(`${start.date}T00:00:00`);
