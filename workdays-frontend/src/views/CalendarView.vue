@@ -12,7 +12,9 @@
       </v-btn>
       <v-toolbar-title v-if="$refs.calendar">
         {{ $refs.calendar.title }}
-      </v-toolbar-title></v-toolbar
+      </v-toolbar-title>
+      <v-spacer></v-spacer>
+      <SchedInput></SchedInput></v-toolbar
     >
     <v-sheet height="600">
       <v-calendar
@@ -33,8 +35,12 @@ Date.prototype.addDays = function (days) {
   return date;
 };
 import ScheduleService from "@/service/ScheduleService";
+import SchedInput from "./SchedInput.vue";
 export default {
   name: "calendar-view",
+  components: {
+    SchedInput
+  },
   data() {
     return {
       value: "",
