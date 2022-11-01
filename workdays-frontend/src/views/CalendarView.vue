@@ -17,13 +17,13 @@
       <SchedInput></SchedInput>
       <v-spacer></v-spacer>
       <v-text-field
-        :value="this.schedData.lineNum"
+        v-model="schedData.lineNum"
         class="mt-0 pt-0"
         hide-details
         single-line
         type="number"
         prefix="Line"
-        @change="setLineNum(value)"
+        @input="updateEvents"
       ></v-text-field>
       <v-spacer></v-spacer>
     </v-toolbar>
@@ -32,10 +32,10 @@
         ref="calendar"
         v-model="value"
         :events="events"
-        @change="setup"
+        @change="updateEvents"
       ></v-calendar>
     </v-sheet>
-    <v-btn @click="updateEvents">Click</v-btn>
+    <!-- <v-btn @click="updateEvents">Click</v-btn> -->
   </div>
 </template>
 
@@ -55,21 +55,25 @@ export default {
   data() {
     return {
       value: "",
-      line: 1,
       events: [],
       schedData: {
-        daysOn: 0,
-        daysOff: 0,
-        daysOnAlt: 0,
-        daysOffAlt: 0,
-        startLineOne: "2000-01-01",
-        lineNum: 0,
+        daysOn: Number,
+        daysOff: Number,
+        daysOnAlt: Number,
+        daysOffAlt: Number,
+        startLineOne: Date,
+        lineNum: Number,
       },
       displayStart: Date.now(),
     };
   },
   created() {
-    this.setScheduleData(7, 6, 5, 4, new Date(2022, 9, 20), 1);
+    // this.setScheduleData(7, 6, 5, 4, new Date(2022, 9, 20), 1);
+    // if (this.$store.state.schedule) {
+    //   this.schedData = this.$store.state.schedule;
+    //   this.updateEvents;
+    // }
+    console.log(this.$store.state.schedule);
   },
   computed: {
     daysTotal() {
@@ -174,15 +178,20 @@ export default {
     },
     updateEvents() {
       const numMonths = 2;
-      const d = new Date(this.$refs.calendar.start);
+      const d = !this.$refs.calendar.start
+        ? new Date(this.$refs.calendar.start)
+        : this.displayStart;
+      console.log("updatevents " + d);
       const events = [];
       ScheduleService.getStartEnd(
         this.schedData.daysOn,
         this.schedData.daysOff,
         this.schedData.daysOnAlt,
         this.schedData.daysOffAlt,
-        this.schedData.startLineOne.toISOString().substr(0, 10),
-        d.toISOString().substr(0, 10),
+        // this.schedData.startLineOne.toISOString().substr(0, 10),
+        // d.toISOString().substr(0, 10),
+        this.schedData.startLineOne,
+        d,
         numMonths,
         this.schedData.lineNum
       ).then((response) => {

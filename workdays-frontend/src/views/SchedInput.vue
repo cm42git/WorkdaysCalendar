@@ -11,42 +11,52 @@
         <v-card-text>
           <v-container>
             <v-text-field
-              v-model="schedData.daysOn"
+              v-model.number="schedDataLocal.daysOn"
               label="Days Working*"
               required
+              type="number"
+              :rules="[()=>schedDataLocal.daysOn>0 || 'Must be greater than zero']"
             ></v-text-field>
             <v-text-field
-              v-model="schedData.daysOff"
+              v-model.number="schedDataLocal.daysOff"
               label="Days Off*"
               required
+              type="number"
+              :rules="[()=>schedDataLocal.daysOff>0 || 'Must be greater than zero']"
             ></v-text-field>
             <v-text-field
-              v-model="schedData.startLineOne"
+              v-model="schedDataLocal.startLineOne"
               label="First Line Start Date*"
               placeholder="12/31/2000"
               required
+              type="date"
             ></v-text-field>
-            <v-text-field
-              v-model="schedData.lineNum"
+            <!-- <v-text-field
+              v-model="schedDataLocal.lineNum"
               label="Line Option number*"
               placeholder="1"
               required
-            ></v-text-field>
-            <v-text-field
-              v-model="schedData.daysOnAlt"
+              type="number"
+              ></v-text-field> -->
+              <v-text-field
+              v-model.number="schedDataLocal.daysOnAlt"
               label="Days Working (alternate tour)"
-            ></v-text-field>
-            <v-text-field
-              v-model="schedData.daysOffAlt"
+              type="number"
+              :rules="[()=>schedDataLocal.daysOnAlt>=0 || 'Must be greater than zero, or zero if N/A']"
+              ></v-text-field>
+              <v-text-field
+              v-model.number="schedDataLocal.daysOffAlt"
               label="Days Off (alternate tour)"
+              type="number"
+              :rules="[()=>schedDataLocal.daysOffAlt>=0 || 'Must be greater than zero, or zero if N/A']"
             ></v-text-field>
           </v-container>
           <small>*indicates required field</small>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="blue lighten-2" @click="dialog = false">Close</v-btn>
-          <v-btn color="blue lighten-2" @click="dialog = false">Save</v-btn>
+          <v-btn color="blue lighten-2" @click="closeOnly">Close</v-btn>
+          <v-btn color="blue lighten-2" @click="saveData">Save</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -58,22 +68,30 @@ export default {
   data() {
     return {
       dialog: false,
-      schedData: {
-        daysOn: 0,
-        daysOff: 0,
-        daysOnAlt: 0,
-        daysOffAlt: 0,
-        startLineOne: "2000-01-01",
-        lineNum: 0,
+      schedDataLocal: {
+        daysOn: Number,
+        daysOff: Number,
+        daysOnAlt: Number,
+        daysOffAlt: Number,
+        startLineOne: Date,
+        lineNum: Number,
       },
     };
   },
   created() {
-    // console.log(this.$store.state.schedule);
-    this.schedData = this.$store.state.schedule;
+    if(this.$store.state.schedule){
+    this.schedDataLocal = this.$store.state.schedule;}
   },
   methods: {
-    saveData() {},
+    closeOnly() {
+      this.schedDataLocal = this.$store.state.schedule;
+      this.dialog = false;
+    },
+    saveData() {
+      this.schedDataLocal.startLineOne=new Date(this.schedDataLocal.startLineOne+"T00:00:00Z")
+      this.$store.commit("SET_SCHEDULE", this.schedDataLocal);
+      this.dialog = false;
+    },
   },
 };
 </script>
