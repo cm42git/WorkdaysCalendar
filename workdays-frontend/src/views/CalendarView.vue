@@ -13,8 +13,16 @@
       <v-toolbar-title v-if="$refs.calendar">
         {{ $refs.calendar.title }}
       </v-toolbar-title>
+      <v-toolbar-title v-else>
+        {{
+          new Date(this.displayStart).toLocaleDateString("default", {
+            month: "long",
+            year: "numeric",
+          })
+        }}
+      </v-toolbar-title>
       <v-spacer></v-spacer>
-      <SchedInput></SchedInput>
+      <SchedInput :dialog="dialogVisable"></SchedInput>
       <v-spacer></v-spacer>
       <v-text-field
         v-model="schedData.lineNum"
@@ -23,7 +31,7 @@
         single-line
         type="number"
         prefix="Line"
-        @input="updateEvents"
+        @input="updateLine"
       ></v-text-field>
       <v-spacer></v-spacer>
     </v-toolbar>
@@ -32,7 +40,9 @@
         ref="calendar"
         v-model="value"
         :events="events"
-        @change="updateEvents"
+        @change="updateCalendar"
+        :rows="2"
+        :step="1"
       ></v-calendar>
     </v-sheet>
     <!-- <v-btn @click="updateEvents">Click</v-btn> -->
@@ -55,6 +65,7 @@ export default {
   data() {
     return {
       value: "",
+      dialogVisable: false,
       events: [],
       schedData: {
         daysOn: Number,
@@ -62,7 +73,7 @@ export default {
         daysOnAlt: Number,
         daysOffAlt: Number,
         startLineOne: Date,
-        lineNum: Number,
+        lineNum: 1,
       },
       displayStart: Date.now(),
     };
@@ -73,10 +84,16 @@ export default {
     //   this.schedData = this.$store.state.schedule;
     //   this.updateEvents;
     // }
-    console.log(this.$store.state.schedule);
+    if (!(this.$store.state.schedule.daysOn > 0)) {
+      this.dialogVisable = true;
+      console.log("No data in store");
+    } else {
+      this.schedData = this.$store.state.schedule;
+      console.log("Loaded store schedule");
+    }
   },
   computed: {
-    daysTotal() {
+    /*  daysTotal() {
       return (
         this.schedData.daysOn +
         this.schedData.daysOff +
@@ -86,7 +103,7 @@ export default {
     },
     daysBack() {
       return this.schedData.daysOnAlt + this.schedData.daysOffAlt;
-    },
+    }, */
   },
   methods: {
     click() {
@@ -105,7 +122,7 @@ export default {
     next() {
       this.$refs.calendar.next();
     },
-    updateRange({ start, end }) {
+    /* updateRange({ start, end }) {
       const events = [];
 
       const min = new Date(new Date(`${start.date}`));
@@ -130,7 +147,7 @@ export default {
       }
 
       this.events = events;
-    },
+    }, */
     rnd(a, b) {
       return Math.floor((b - a + 1) * Math.random()) + a;
     },
@@ -166,7 +183,7 @@ export default {
       this.$store.commit("SET_SCHEDULE", this.schedData);
       this.updateEvents();
     },
-    getWorkdayNum(line, date) {
+    /*  getWorkdayNum(line, date) {
       return (date - this.schedData.startLineOne + line - 1) % this.daysTotal;
     },
     getStartDate(line, date) {
@@ -175,38 +192,48 @@ export default {
       return startOfMonth.addDays(
         -this.getWorkdayNum(line, startOfMonth) - this.daysTotal
       );
-    },
-    updateEvents() {
+    }, */
+    updateCalendar({ start }) {
       const numMonths = 2;
-      const d = !this.$refs.calendar.start
-        ? new Date(this.$refs.calendar.start)
-        : this.displayStart;
-      console.log("updatevents " + d);
+      const begin = new Date(start.date).toISOString().slice(0, 10);
+      // console.log("updatevents " + begin);
+      // console.log(this.$store.state.schedule.daysOn);
+      // console.log(this.$refs.calendar.start);
+      this.pullEvents(numMonths, begin);
+    },
+    updateLine() {
+      this.$store.commit("SET_LINE", this.schedData.lineNum);
+      this.pullEvents(2, this.$refs.calendar.start.substring(0, 7) + "-01");
+    },
+    pullEvents(numMonths, begin) {
       const events = [];
-      ScheduleService.getStartEnd(
-        this.schedData.daysOn,
-        this.schedData.daysOff,
-        this.schedData.daysOnAlt,
-        this.schedData.daysOffAlt,
-        // this.schedData.startLineOne.toISOString().substr(0, 10),
-        // d.toISOString().substr(0, 10),
-        this.schedData.startLineOne,
-        d,
-        numMonths,
-        this.schedData.lineNum
-      ).then((response) => {
-        response.data.forEach((e) => {
-          events.push({
-            name: "Work",
-            start: e.start,
-            end: e.end,
-            timed: false,
+      if (this.$store.state.schedule.daysOn > 0) {
+        console.log("Updating events from backend... ");
+        ScheduleService.getStartEnd(
+          this.$store.state.schedule.daysOn,
+          this.$store.state.schedule.daysOff,
+          this.$store.state.schedule.daysOnAlt,
+          this.$store.state.schedule.daysOffAlt,
+          this.$store.state.schedule.startLineOne,
+          begin,
+          numMonths,
+          this.$store.state.schedule.lineNum
+        ).then((response) => {
+          response.data.forEach((e) => {
+            events.push({
+              name: "Work",
+              start: e.start,
+              end: e.end,
+              timed: false,
+            });
           });
         });
-      });
-      this.events = events;
+        this.events = events;
+      } else {
+        console.log("Unable to update events, store is empty?");
+      }
     },
-    setup({ start }) {
+    /*  setup({ start }) {
       const numMonths = 2;
       const n = new Date(`${start.date}T00:00:00`);
       const events = [];
@@ -231,7 +258,7 @@ export default {
         });
       });
       this.events = events;
-    },
+    }, */
     /*  jsCalcs() {
       const daysBeforeFirst =
         (new Date(n.getFullYear(), n.getMonth(), 1) -
