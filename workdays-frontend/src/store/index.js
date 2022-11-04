@@ -58,6 +58,7 @@ export default new Vuex.Store({
           });
           state.events = events;
         });
+        console.log("Events updated.");
       }
     },
   },

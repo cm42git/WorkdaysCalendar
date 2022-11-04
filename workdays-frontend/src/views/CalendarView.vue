@@ -86,6 +86,7 @@ export default {
     if (!(this.$store.state.schedule.daysOn > 0)) {
       this.dialogVisable = true;
       console.log("No schedule data. Please update.");
+      alert("No Schedule Data! Please update!")
     } else {
       this.schedData = this.$store.state.schedule;
       console.log("Loaded store schedule data.");
