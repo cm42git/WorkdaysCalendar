@@ -22,7 +22,7 @@
         }}
       </v-toolbar-title>
       <v-spacer></v-spacer>
-      <SchedInput :dialog="dialogVisable"></SchedInput>
+      <SchedInput></SchedInput>
       <v-spacer></v-spacer>
       <v-text-field
         v-model="schedData.lineNum"
@@ -39,13 +39,13 @@
       <v-calendar
         ref="calendar"
         v-model="value"
-        :events="events"
+        :events="this.$store.state.events"
         @change="updateCalendar"
-        :rows="2"
-        :step="1"
       ></v-calendar>
     </v-sheet>
     <!-- <v-btn @click="updateEvents">Click</v-btn> -->
+    <!-- <h2>{{new Date(this.displayStart).toISOString()}}</h2>
+    <h2 v-if="$refs.calendar">{{new Date(this.$refs.calendar.start).toISOString()}}</h2> -->
   </div>
 </template>
 
@@ -65,7 +65,6 @@ export default {
   data() {
     return {
       value: "",
-      dialogVisable: false,
       events: [],
       schedData: {
         daysOn: Number,
@@ -86,10 +85,10 @@ export default {
     // }
     if (!(this.$store.state.schedule.daysOn > 0)) {
       this.dialogVisable = true;
-      console.log("No data in store");
+      console.log("No schedule data. Please update.");
     } else {
       this.schedData = this.$store.state.schedule;
-      console.log("Loaded store schedule");
+      console.log("Loaded store schedule data.");
     }
   },
   computed: {
@@ -115,6 +114,7 @@ export default {
     },
     setToday() {
       this.value = "";
+      this.displayStart = Date.now();
     },
     prev() {
       this.$refs.calendar.prev();
@@ -196,14 +196,23 @@ export default {
     updateCalendar({ start }) {
       const numMonths = 2;
       const begin = new Date(start.date).toISOString().slice(0, 10);
+      // console.log("beginmonth passed: "+begin);
+      this.displayStart = new Date(start.date);
+      this.$store.state.displayMonth=new Date(start.date).toISOString().substring(0, 7) + "-01";
       // console.log("updatevents " + begin);
       // console.log(this.$store.state.schedule.daysOn);
       // console.log(this.$refs.calendar.start);
-      this.pullEvents(numMonths, begin);
+      // this.pullEvents(numMonths, begin);
+      this.$store.dispatch("pullEvents", {numMonths: numMonths, begin: begin});
     },
     updateLine() {
       this.$store.commit("SET_LINE", this.schedData.lineNum);
-      this.pullEvents(2, this.$refs.calendar.start.substring(0, 7) + "-01");
+      this.$store.state.displayMonth = new Date(this.displayStart).toISOString().substring(0, 7) + "-01";
+      /* this.pullEvents(
+        2,
+        new Date(this.displayStart).toISOString().substring(0, 7) + "-01"
+      ); */
+      this.$store.dispatch("pullEvents",{numMonths: 2, begin: new Date(this.displayStart).toISOString().substring(0, 7) + "-01"})
     },
     pullEvents(numMonths, begin) {
       const events = [];

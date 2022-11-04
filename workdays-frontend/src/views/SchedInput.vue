@@ -117,6 +117,7 @@ export default {
       this.schedDataLocal.lineNum = 1;
       // console.log(this.schedDataLocal);
       this.$store.commit("SET_SCHEDULE", this.schedDataLocal);
+      this.$store.dispatch("pullEvents", { numMonths: 2 });
       this.dialog = false;
       // console.log(this.$store.state.schedule);
     },
