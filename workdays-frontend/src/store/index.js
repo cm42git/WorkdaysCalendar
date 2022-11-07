@@ -3,12 +3,12 @@ import Vuex from "vuex";
 
 Vue.use(Vuex);
 
-// const schedule = localStorage.getItem("schedData");
+// const schedData = localStorage.getItem("schedData");
 import ScheduleService from "@/service/ScheduleService";
 export default new Vuex.Store({
   state: {
     // schedule: schedule || {},
-    schedule: {
+    schedule: /* schedData || */ {
       daysOn: Number,
       daysOff: Number,
       daysOnAlt: Number,
@@ -17,21 +17,21 @@ export default new Vuex.Store({
       lineNum: Number,
     },
     events: [],
-    displayMonth: Date
+    displayMonth: Date,
   },
   getters: {},
   mutations: {
     SET_SCHEDULE(state, sched) {
       state.schedule = sched;
-      // localStorage.setItem("schedData", JSON.stringify(sched));
+      // localStorage.setItem("schedData", JSON.stringify(state.schedule));
     },
     SET_LINE(state, line) {
       state.schedule.lineNum = line;
-      // localStorage.setItem("schedData", JSON.stringify(sched));
+      // localStorage.setItem("schedData", JSON.stringify(state.schedule));
     },
     SET_DISPLAY_MONTH(state, month) {
       state.displayMonth = month;
-    }
+    },
   },
   actions: {
     pullEvents({ state }, data) {

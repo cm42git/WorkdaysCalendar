@@ -25,7 +25,6 @@ public class RestScheduleService implements ScheduleService {
         boolean working = false;
         int daysTotal = sched.daysOn() + sched.daysOff() + sched.daysOnAlt() + sched.daysOffAlt();
         int daysBack = sched.daysOnAlt() + sched.daysOffAlt();
-        // int startLineOneNum = DAY_ZERO_DATE.until(startLineOne, ChronoUnit.DAYS);
         int dateCheckNum = (int) sched.startLineOne().plusDays((long) lineNumber - 1).until(dateToCheck, ChronoUnit.DAYS);
 
         if (Math.floorMod(dateCheckNum, daysTotal) < sched.daysOn()) {
