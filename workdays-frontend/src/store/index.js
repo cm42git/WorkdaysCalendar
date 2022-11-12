@@ -32,6 +32,9 @@ export default new Vuex.Store({
     SET_DISPLAY_MONTH(state, month) {
       state.displayMonth = month;
     },
+    SET_EVENTS(state, events) {
+      state.events = events;
+    },
   },
   actions: {
     pullEvents({ state }, data) {
@@ -56,11 +59,12 @@ export default new Vuex.Store({
               timed: false,
             });
           });
-          state.events = events;
+          this.commit("SET_EVENTS",events);
         });
         console.log("Events updated.");
       }
     },
   },
   modules: {},
+  strict: true,
 });

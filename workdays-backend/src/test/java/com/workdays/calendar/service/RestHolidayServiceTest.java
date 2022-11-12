@@ -29,9 +29,14 @@ public class RestHolidayServiceTest {
         List<Holiday> expectedHolidays = new ArrayList<>();
         expectedHolidays.add(new Holiday("New Year's Day", LocalDate.of(2024, 1, 1)));
         expectedHolidays.add(new Holiday("Martin Luther King Jr. Day", LocalDate.of(2024, 1, 15)));
-        
+
         List<Holiday> actualHolidays = holidayService.getHolidays(LocalDate.of(2024, 1, 1));
 
         assertEquals(expectedHolidays, actualHolidays);
+    }
+    
+    @Test
+    void getfirstMondayOfJanuary2022() {
+        
     }
 }

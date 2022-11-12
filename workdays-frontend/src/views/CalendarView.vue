@@ -1,3 +1,5 @@
+"use strict"
+
 <template>
   <div id="calendar">
     <v-toolbar flat>
@@ -77,7 +79,7 @@ export default {
     if (!(this.$store.state.schedule.daysOn > 0)) {
       this.dialogVisable = true;
       console.log("No schedule data. Please update.");
-      alert("No Schedule Data! Please update!")
+      alert("No Schedule Data! Please update!");
     } else {
       this.schedData = this.$store.state.schedule;
       console.log("Loaded store schedule data.");
@@ -113,18 +115,32 @@ export default {
       const numMonths = 2;
       const begin = new Date(start.date).toISOString().slice(0, 10);
       this.displayStart = new Date(start.date);
-      this.$store.state.displayMonth=new Date(start.date).toISOString().substring(0, 7) + "-01";
+      this.$store.commit(
+        "SET_DISPLAY_MONTH",
+        new Date(start.date).toISOString().substring(0, 7) + "-01"
+      );
+      // this.$store.state.displayMonth=new Date(start.date).toISOString().substring(0, 7) + "-01";
 
-      this.$store.dispatch("pullEvents", {numMonths: numMonths, begin: begin});
+      this.$store.dispatch("pullEvents", {
+        numMonths: numMonths,
+        begin: begin,
+      });
     },
     updateLine() {
       this.$store.commit("SET_LINE", this.schedData.lineNum);
-      this.$store.state.displayMonth = new Date(this.displayStart).toISOString().substring(0, 7) + "-01";
+      this.$store.commit(
+        "SET_DISPLAY_MONTH",
+        new Date(this.displayStart).toISOString().substring(0, 7) + "-01"
+      );
+      // this.$store.state.displayMonth = new Date(this.displayStart).toISOString().substring(0, 7) + "-01";
 
-      this.$store.dispatch("pullEvents",{numMonths: 2, begin: new Date(this.displayStart).toISOString().substring(0, 7) + "-01"})
+      this.$store.dispatch("pullEvents", {
+        numMonths: 2,
+        begin:
+          new Date(this.displayStart).toISOString().substring(0, 7) + "-01",
+      });
     },
   },
 };
 </script>
-<style>
-</style>
+<style></style>
