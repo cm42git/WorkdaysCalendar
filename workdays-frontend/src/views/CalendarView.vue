@@ -44,6 +44,7 @@
         :events="this.$store.state.events"
         @change="updateCalendar"
       ></v-calendar>
+      <!-- <h3>{{this.$store.state.holidays}}</h3> -->
     </v-sheet>
   </div>
 </template>
@@ -125,8 +126,7 @@ export default {
         numMonths: numMonths,
         begin: begin,
       });
-      this.$store.dispatch("pullHolidays", begin);
-      
+
     },
     updateLine() {
       this.$store.commit("SET_LINE", this.schedData.lineNum);

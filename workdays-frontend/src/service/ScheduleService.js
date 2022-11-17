@@ -19,7 +19,7 @@ export default {
   },
   getHolidays(monthYear, monthsBefore, monthsAfter) {
     return http.get(
-      `/holidays?monthyear=${monthYear}&monthsbefore=${monthsBefore}&monthsafter=${monthsAfter}`
+      `/holidays?monthYear=${monthYear}&monthsBefore=${monthsBefore}&monthsAfter=${monthsAfter}`
     );
   },
 };
