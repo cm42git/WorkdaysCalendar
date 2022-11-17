@@ -35,9 +35,6 @@ export default new Vuex.Store({
     SET_EVENTS(state, events) {
       state.events = events;
     },
-    SET_HOLIDAYS(state, holidays) {
-      state.holidays = holidays;
-    },
     APPEND_HOLIDAYS(state) {
       state.events.push(state.holidays);
     },
