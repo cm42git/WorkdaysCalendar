@@ -2,7 +2,7 @@ package com.workdays.calendar.service;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.temporal.TemporalAdjuster;
+import java.time.Month;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,11 +10,69 @@ import java.util.List;
 import com.workdays.calendar.model.Holiday;
 
 public class RestHolidayService {
+    enum Ord {
+        FIRST(1),
+        SECOND(2),
+        THIRD(3),
+        FOURTH(4),
+        LAST(5);
+
+        private final int weekAdj;
+
+        Ord(int weekAdj) {
+            this.weekAdj = weekAdj;
+        }
+
+        int weekOfMonth() {
+            return weekAdj;
+        }
+    }
+
+    public List<Holiday> getHolidays(LocalDate monthYear, int monthsBefore, int monthsAfter) {
+        List<Holiday> holidays = new ArrayList<>();
+        LocalDate startMonthYear = monthYear.minusMonths(Math.max(0,monthsBefore));
+
+        for (int i = 0; i < monthsBefore + monthsAfter; i++) {
+            holidays.addAll(getHolidays(startMonthYear.plusMonths(i)));
+        }
+
+        return holidays;
+    }
 
     public List<Holiday> getHolidays(LocalDate monthYear) {
         List<Holiday> holidays = new ArrayList<>();
-        holidays.add(getNewYearsDay(monthYear));
-        holidays.add(getMLKDay(monthYear));
+
+        switch (monthYear.getMonth()) {
+            case JANUARY -> {
+                holidays.add(getNewYearsDay(monthYear));
+                holidays.add(getMLKDay(monthYear));
+            }
+            case FEBRUARY -> holidays.add(getPresidentsDay(monthYear));
+            case MARCH -> {
+                if (getGoodFridayDay(monthYear).date().getMonth() == Month.MARCH) {
+                    holidays.add(getGoodFridayDay(monthYear));
+                }
+                if (getEasterDay(monthYear).date().getMonth() == Month.MARCH) {
+                    holidays.add(getEasterDay(monthYear));
+                }
+            }
+            case APRIL -> {
+                if (getGoodFridayDay(monthYear).date().getMonth() == Month.APRIL) {
+                    holidays.add(getGoodFridayDay(monthYear));
+                }
+                if (getEasterDay(monthYear).date().getMonth() == Month.APRIL) {
+                    holidays.add(getEasterDay(monthYear));
+                }
+            }
+            case MAY -> holidays.add(getMemorialDay(monthYear));
+            case JULY -> holidays.add(getIndependenceDay(monthYear));
+            case SEPTEMBER -> holidays.add(getLaborDay(monthYear));
+            case NOVEMBER -> holidays.add(getThanksgivingDay(monthYear));
+            case DECEMBER -> holidays.add(getChristmasDay(monthYear));
+            default -> {
+            }
+        }
+
         return holidays;
     }
 
@@ -23,24 +81,48 @@ public class RestHolidayService {
     }
 
     private Holiday getMLKDay(LocalDate monthYear) {
-        int weekdayFirstJanuary = LocalDate.of(monthYear.getYear(), 1, 1).getDayOfWeek().getValue();
-        // get the day of month for the 3rd Monday of January
-        int mlkDayOfMonth = 15 + ((8 - weekdayFirstJanuary) % 7);
-        return new Holiday("Martin Luther King Jr. Day", LocalDate.of(monthYear.getYear(), 1, mlkDayOfMonth));
+        return new Holiday("Martin Luther King Jr. Day", getDayOfMonth(monthYear, DayOfWeek.MONDAY, Ord.THIRD));
     }
 
     private Holiday getPresidentsDay(LocalDate monthYear) {
-        int weekdayFirstFebruary = LocalDate.of(monthYear.getYear(), 2, 1).getDayOfWeek().getValue();
-        // get the day of month for the 3rd Monday of February
-        int presidentsDayOfMonth = 15 + ((8 - weekdayFirstFebruary) % 7);
-        return new Holiday("Presidents' Day", LocalDate.of(monthYear.getYear(), 2, presidentsDayOfMonth));
+        return new Holiday("Presidents' Day", getDayOfMonth(monthYear, DayOfWeek.MONDAY, Ord.THIRD));
+    }
+
+    /**
+     * Adapted from Laurent Longre algorithm for Excel VBA, published at
+     * https://groups.google.com/group/microsoft.public.excel.worksheet.functions/msg/bae33ace3ce95b0c
+     * 
+     * @param monthYear only uses year part of date
+     * @return Holiday data type of Easter Day
+     * 
+     */
+    private Holiday getEasterDay(LocalDate monthYear) {
+        int century, sunday, epact, golden, leapDayCorrection, syncWithMoon, N;
+        int year = monthYear.getYear();
+
+        golden = (year % 19) + 1;
+        century = year / 100 + 1;
+        leapDayCorrection = 3 * century / 4 - 12;
+        syncWithMoon = (8 * century + 5) / 25 - 5;
+        sunday = 5 * year / 4 - leapDayCorrection - 10;
+
+        epact = (11 * golden + 20 + syncWithMoon - leapDayCorrection) % 30;
+        epact += epact < 0 ? 30 : 0;
+        epact += (epact == 25 && golden > 11) || epact == 24 ? 1 : 0;
+
+        N = 44 - epact;
+        N += N < 21 ? 30 : 0;
+        N = N + 7 - ((sunday + N) % 7);
+
+        return new Holiday("Easter Day", LocalDate.of(monthYear.getYear(), 3, 1).plusDays(N - 1));
+    }
+
+    private Holiday getGoodFridayDay(LocalDate monthYear) {
+        return new Holiday("Good Friday", getEasterDay(monthYear).date().minusDays(2));
     }
 
     private Holiday getMemorialDay(LocalDate monthYear) {
-        int weekdayLastMay = LocalDate.of(monthYear.getYear(), 5, 31).getDayOfWeek().getValue();
-        // get the day of month for the last Monday of May
-        int memorialDayOfMonth = 31 - ((weekdayLastMay - 1) % 7);
-        return new Holiday("Memorial Day", LocalDate.of(monthYear.getYear(), 5, memorialDayOfMonth));
+        return new Holiday("Memorial Day", getDayOfMonth(monthYear, DayOfWeek.MONDAY, Ord.LAST));
     }
 
     private Holiday getIndependenceDay(LocalDate monthYear) {
@@ -48,34 +130,35 @@ public class RestHolidayService {
     }
 
     private Holiday getLaborDay(LocalDate monthYear) {
-        int weekdayFirstSeptember = LocalDate.of(monthYear.getYear(), monthYear.getMonthValue(), 1).getDayOfWeek()
-                .getValue();
-        // get the day of month for the 1st Monday of September
-        int laborDayOfMonth = 1 + ((8 - weekdayFirstSeptember) % 7);
-        return new Holiday("Labor Day", LocalDate.of(monthYear.getYear(), 9, laborDayOfMonth));
+        return new Holiday("Labor Day", getDayOfMonth(monthYear, DayOfWeek.MONDAY, Ord.FIRST));
+    }
+
+    private Holiday getThanksgivingDay(LocalDate monthYear) {
+        return new Holiday("Thanksgiving Day", getDayOfMonth(monthYear, DayOfWeek.THURSDAY, Ord.FOURTH));
+    }
+
+    private Holiday getChristmasDay(LocalDate monthYear) {
+        return new Holiday("Christmas Day", LocalDate.of(monthYear.getYear(), 12, 25));
     }
 
     /**
-     * @param monthYear
-     * @param weekday
-     * @param ordinal
+     * @param monthYear given month and year to find day of month in
+     * @param weekday   which day of week to return
+     * @param ordinal   which instance of weekday (i.e. 1=first, 2=second, 3=third,
+     *                  4=fourth, 5=last)
      */
-    public LocalDate getDayOfMonth(LocalDate monthYear, DayOfWeek weekday, int ordinal) {
-        // monthYear indicates the month and year to derive the day of month from
-        // weekday indicates which day of the week to return
-        // ordinal indicates which instance of the day of week to return (i.e. 1=first,
-        // 2=second, 3=third, 4=fourth, 5=last)
-        if (ordinal > 0 && ordinal < 5) {
+    private LocalDate getDayOfMonth(LocalDate monthYear, DayOfWeek weekday, Ord week) {
+        if (week != Ord.LAST) {
             DayOfWeek weekdayFirstOfMonth = monthYear.with(TemporalAdjusters.firstDayOfMonth()).getDayOfWeek();
-            int dayOfMonth = (7 * (ordinal - 1)) + ((7 - weekdayFirstOfMonth.getValue() + weekday.getValue()) % 7) + 1;
+            int dayOfMonth = (7 * (week.weekOfMonth() - 1))
+                    + ((7 - weekdayFirstOfMonth.getValue() + weekday.getValue()) % 7) + 1;
             return LocalDate.of(monthYear.getYear(), monthYear.getMonthValue(), dayOfMonth);
-        } else if (ordinal == 5) {
-            DayOfWeek weekdayLastOfMonth = monthYear.with(TemporalAdjusters.lastDayOfMonth()).getDayOfWeek();
-            int dayOfMonth = monthYear.with(TemporalAdjusters.lastDayOfMonth()).getDayOfMonth()
-                    - (((weekdayLastOfMonth.getValue() - weekday.getValue() + 1) + 7) % 7);
+        } else {
+            LocalDate lastDay = monthYear.with(TemporalAdjusters.lastDayOfMonth());
+            DayOfWeek weekdayLastOfMonth = lastDay.getDayOfWeek();
+            int dayOfMonth = lastDay.getDayOfMonth() - (((weekdayLastOfMonth.getValue() - weekday.getValue()) + 7) % 7);
             return LocalDate.of(monthYear.getYear(), monthYear.getMonthValue(), dayOfMonth);
         }
 
-        return LocalDate.MIN;
     }
 }
