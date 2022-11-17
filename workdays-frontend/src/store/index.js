@@ -35,9 +35,6 @@ export default new Vuex.Store({
     SET_EVENTS(state, events) {
       state.events = events;
     },
-    SET_HOLIDAYS(state, holidays) {
-      state.holidays = holidays;
-    },
     APPEND_HOLIDAYS(state, holidays) {
       holidays.forEach((h) => state.events.push(h));
     },
@@ -85,7 +82,6 @@ export default new Vuex.Store({
             timed: false,
           });
         });
-        // this.commit("SET_HOLIDAYS", hol);
         this.commit("APPEND_HOLIDAYS", hol);
         console.log("Holidays set and appended.");
       });
