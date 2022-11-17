@@ -125,6 +125,8 @@ export default {
         numMonths: numMonths,
         begin: begin,
       });
+      this.$store.dispatch("pullHolidays", begin);
+      
     },
     updateLine() {
       this.$store.commit("SET_LINE", this.schedData.lineNum);

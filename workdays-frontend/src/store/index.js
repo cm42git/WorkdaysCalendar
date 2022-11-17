@@ -17,6 +17,7 @@ export default new Vuex.Store({
       lineNum: Number,
     },
     events: [],
+    holidays: [],
     displayMonth: Date,
   },
   getters: {},
@@ -34,6 +35,12 @@ export default new Vuex.Store({
     },
     SET_EVENTS(state, events) {
       state.events = events;
+    },
+    SET_HOLIDAYS(state, holidays) {
+      state.holidays = holidays;
+    },
+    APPEND_HOLIDAYS(state) {
+      state.events.push(state.holidays);
     },
   },
   actions: {
@@ -59,10 +66,27 @@ export default new Vuex.Store({
               timed: false,
             });
           });
-          this.commit("SET_EVENTS",events);
+          this.commit("SET_EVENTS", events);
         });
         console.log("Events updated.");
       }
+    },
+    pullHolidays(month) {
+      const hol = [];
+      console.log("Getting holidays for " + month + "...");
+      ScheduleService.getHolidays(month, 1, 1).then((response) => {
+        response.data.forEach((h) => {
+          hol.push({
+            name: h.holidayName,
+            start: h.date,
+            end: h.date,
+            timed: false,
+            color: "green",
+          });
+        });
+      });
+      this.commit("SET_HOLIDAYS", hol);
+      this.commit("APPEND_HOLIDAYS");
     },
   },
   modules: {},

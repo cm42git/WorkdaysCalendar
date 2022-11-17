@@ -7,8 +7,11 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.stereotype.Component;
+
 import com.workdays.calendar.model.Holiday;
 
+@Component
 public class RestHolidayService implements HolidayService {
     enum Ord {
         FIRST(1),

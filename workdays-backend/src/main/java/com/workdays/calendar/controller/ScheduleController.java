@@ -23,6 +23,7 @@ public class ScheduleController {
 
     @Autowired
     ScheduleService scheduleService;
+    @Autowired
     HolidayService holidayService;
 
     @GetMapping(path = "/scheduledates")

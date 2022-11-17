@@ -13,6 +13,13 @@ export default {
     numMonths,
     lineNum
   ) {
-    return http.get(`/scheduledates?daysOn=${daysOn}&daysOff=${daysOff}&daysOnAlt=${daysOnAlt}&daysOffAlt=${daysOffAlt}&startLineOne=${startLineOne}&beginMonth=${beginMonth}&numMonths=${numMonths}&lineNum=${lineNum}`);
+    return http.get(
+      `/scheduledates?daysOn=${daysOn}&daysOff=${daysOff}&daysOnAlt=${daysOnAlt}&daysOffAlt=${daysOffAlt}&startLineOne=${startLineOne}&beginMonth=${beginMonth}&numMonths=${numMonths}&lineNum=${lineNum}`
+    );
+  },
+  getHolidays(monthYear, monthsBefore, monthsAfter) {
+    return http.get(
+      `/holidays?monthyear=${monthYear}&monthsbefore=${monthsBefore}&monthsafter=${monthsAfter}`
+    );
   },
 };
