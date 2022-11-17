@@ -119,14 +119,12 @@ export default {
         "SET_DISPLAY_MONTH",
         new Date(start.date).toISOString().substring(0, 7) + "-01"
       );
-      // this.$store.state.displayMonth=new Date(start.date).toISOString().substring(0, 7) + "-01";
 
       this.$store.dispatch("pullEvents", {
         numMonths: numMonths,
         begin: begin,
       });
-      this.$store.dispatch("pullHolidays", begin);
-      
+
     },
     updateLine() {
       this.$store.commit("SET_LINE", this.schedData.lineNum);
@@ -134,7 +132,6 @@ export default {
         "SET_DISPLAY_MONTH",
         new Date(this.displayStart).toISOString().substring(0, 7) + "-01"
       );
-      // this.$store.state.displayMonth = new Date(this.displayStart).toISOString().substring(0, 7) + "-01";
 
       this.$store.dispatch("pullEvents", {
         numMonths: 2,
