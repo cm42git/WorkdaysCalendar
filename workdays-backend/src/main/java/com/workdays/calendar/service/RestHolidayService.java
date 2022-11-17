@@ -9,7 +9,7 @@ import java.util.List;
 
 import com.workdays.calendar.model.Holiday;
 
-public class RestHolidayService {
+public class RestHolidayService implements HolidayService {
     enum Ord {
         FIRST(1),
         SECOND(2),
@@ -30,7 +30,7 @@ public class RestHolidayService {
 
     public List<Holiday> getHolidays(LocalDate monthYear, int monthsBefore, int monthsAfter) {
         List<Holiday> holidays = new ArrayList<>();
-        LocalDate startMonthYear = monthYear.minusMonths(Math.max(0,monthsBefore));
+        LocalDate startMonthYear = monthYear.minusMonths(Math.max(0, monthsBefore));
 
         for (int i = 0; i < monthsBefore + monthsAfter; i++) {
             holidays.addAll(getHolidays(startMonthYear.plusMonths(i)));
