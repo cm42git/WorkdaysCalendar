@@ -44,6 +44,7 @@
         :events="this.$store.state.events"
         @change="updateCalendar"
       ></v-calendar>
+      <!-- <h3>{{this.$store.state.holidays}}</h3> -->
     </v-sheet>
   </div>
 </template>
