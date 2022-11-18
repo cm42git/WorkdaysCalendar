@@ -44,7 +44,7 @@
         :events="this.$store.state.events"
         @change="updateCalendar"
       ></v-calendar>
-      <!-- <h3>{{this.$store.state.holidays}}</h3> -->
+      <Calendar />
     </v-sheet>
   </div>
 </template>
@@ -77,6 +77,12 @@ export default {
     };
   },
   created() {
+    this.displayStart = Date.now();
+    this.$store.commit(
+      "SET_DISPLAY_MONTH",
+      new Date(this.displayStart).toISOString().substring(0, 7) + "-01"
+    );
+
     if (!(this.$store.state.schedule.daysOn > 0)) {
       this.dialogVisable = true;
       console.log("No schedule data. Please update.");
@@ -121,11 +127,11 @@ export default {
         new Date(start.date).toISOString().substring(0, 7) + "-01"
       );
 
+      this.$store.dispatch("pullHolidays");
       this.$store.dispatch("pullEvents", {
         numMonths: numMonths,
         begin: begin,
       });
-
     },
     updateLine() {
       this.$store.commit("SET_LINE", this.schedData.lineNum);

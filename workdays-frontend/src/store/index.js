@@ -35,8 +35,15 @@ export default new Vuex.Store({
     SET_EVENTS(state, events) {
       state.events = events;
     },
-    APPEND_HOLIDAYS(state, holidays) {
-      holidays.forEach((h) => state.events.push(h));
+    APPEND_EVENTS(state, events) {
+      events.forEach((e) => state.events.push(e));
+    },
+    DELETE_EVENTS(state, category) {
+      if (category !== null) {
+        state.events = state.events.filter((e) => e.category !== category);
+      } else {
+        state.events = [];
+      }
     },
   },
   actions: {
@@ -61,12 +68,15 @@ export default new Vuex.Store({
               end: e.end,
               color: "blue",
               timed: false,
+              category: "work",
             });
           });
-          this.commit("SET_EVENTS", events);
+          // this.commit("SET_EVENTS", events);
+          this.commit("DELETE_EVENTS", "work");
+          this.commit("APPEND_EVENTS", events);
+          console.log("Events updated.");
         });
-        console.log("Events updated.");
-        this.dispatch("pullHolidays");
+        // this.dispatch("pullHolidays");
       }
     },
     pullHolidays({ state }) {
@@ -77,15 +87,15 @@ export default new Vuex.Store({
           hol.push({
             name: h.holidayName,
             start: h.date,
-            end: h.date,
             color: "green",
             timed: false,
+            category: "holiday",
           });
         });
-        this.commit("APPEND_HOLIDAYS", hol);
+        this.commit("DELETE_EVENTS", "holiday");
+        this.commit("APPEND_EVENTS", hol);
         console.log("Holidays set and appended.");
       });
-
     },
   },
   modules: {},
