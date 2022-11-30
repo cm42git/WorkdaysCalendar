@@ -31,17 +31,9 @@
             <v-text-field
               v-model="dateInput"
               label="First Line Start Date*"
-              placeholder="12/31/2000"
               required
               type="date"
             ></v-text-field>
-            <!-- <v-text-field
-              v-model="schedDataLocal.lineNum"
-              label="Line Option number*"
-              placeholder="1"
-              required
-              type="number"
-              ></v-text-field> -->
             <v-text-field
               v-model.number="daysOnAltInput"
               label="Days Working (alternate tour)"

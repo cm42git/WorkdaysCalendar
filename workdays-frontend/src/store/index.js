@@ -4,6 +4,7 @@ import Vuex from "vuex";
 Vue.use(Vuex);
 
 // const schedData = localStorage.getItem("schedData");
+
 import ScheduleService from "@/service/ScheduleService";
 export default new Vuex.Store({
   state: {
@@ -21,6 +22,13 @@ export default new Vuex.Store({
   },
   getters: {},
   mutations: {
+    INITIALIZE_STORE(state) {
+      if (localStorage.getItem('store')) {
+        this.replaceState(
+          Object.assign(state,JSON.parse(localStorage.getItem('store')))
+        )
+      }
+    },
     SET_SCHEDULE(state, sched) {
       state.schedule = sched;
       // localStorage.setItem("schedData", JSON.stringify(state.schedule));

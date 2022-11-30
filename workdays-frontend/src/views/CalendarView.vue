@@ -26,6 +26,7 @@
       <v-spacer></v-spacer>
       <SchedInput></SchedInput>
       <v-spacer></v-spacer>
+
       <v-text-field
         v-model="schedData.lineNum"
         class="mt-0 pt-0"
@@ -44,7 +45,9 @@
         :events="this.$store.state.events"
         @change="updateCalendar"
       ></v-calendar>
-      <Calendar />
+
+      <p></p>
+      <AddEvent></AddEvent>
     </v-sheet>
   </div>
 </template>
@@ -56,10 +59,12 @@ Date.prototype.addDays = function (days) {
   return date;
 };
 import SchedInput from "./SchedInput.vue";
+import AddEvent from "./AddEvent.vue";
 export default {
   name: "calendar-view",
   components: {
     SchedInput,
+    AddEvent
   },
   data() {
     return {
@@ -145,7 +150,7 @@ export default {
         begin:
           new Date(this.displayStart).toISOString().substring(0, 7) + "-01",
       });
-    },
+    }
   },
 };
 </script>
