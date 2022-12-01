@@ -23,10 +23,10 @@ export default new Vuex.Store({
   getters: {},
   mutations: {
     INITIALIZE_STORE(state) {
-      if (localStorage.getItem('store')) {
+      if (localStorage.getItem("store")) {
         this.replaceState(
-          Object.assign(state,JSON.parse(localStorage.getItem('store')))
-        )
+          Object.assign(state, JSON.parse(localStorage.getItem("store")))
+        );
       }
     },
     SET_SCHEDULE(state, sched) {
@@ -52,6 +52,9 @@ export default new Vuex.Store({
       } else {
         state.events = [];
       }
+    },
+    DELETE_EVENT(state, event) {
+      state.events = state.events.filter((e) => e !== event);
     },
   },
   actions: {

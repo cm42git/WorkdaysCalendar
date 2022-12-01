@@ -7,31 +7,33 @@
         </v-btn>
       </template>
       <v-card>
-        <v-container>
-          <v-text-field
-            v-model="event[0].name"
-            label="Event Name"
-            required
-          ></v-text-field>
-          <v-text-field
-            v-model="event[0].start"
-            label="Start Date"
-            required
-            type="date"
-          ></v-text-field
-          ><v-text-field
-            v-model="event[0].end"
-            label="End Date"
-            required
-            type="date"
-          ></v-text-field>
-        </v-container>
+        <v-card-text>
+          <v-container>
+            <v-text-field
+              v-model="event[0].name"
+              label="Event Name"
+              required
+            ></v-text-field>
+            <v-text-field
+              v-model="event[0].start"
+              label="Start Date"
+              required
+              type="date"
+            ></v-text-field
+            ><v-text-field
+              v-model="event[0].end"
+              label="End Date"
+              required
+              type="date"
+            ></v-text-field>
+          </v-container>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="blue lighten-2" @click="closeOnly">Cancel</v-btn>
+          <v-btn color="blue lighten-2" @click="saveData">Save</v-btn>
+        </v-card-actions>
       </v-card>
-      <v-card-actions>
-        <v-spacer></v-spacer>
-        <v-btn color="blue lighten-2" @click="closeOnly">Cancel</v-btn>
-        <v-btn color="blue lighten-2" @click="saveData">Save</v-btn>
-      </v-card-actions>
     </v-dialog>
   </div>
 </template>
