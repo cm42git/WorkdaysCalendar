@@ -2,13 +2,14 @@
   <div class="text-right">
     <v-dialog width="300" v-model="addDialog">
       <template v-slot:activator="{ on, attrs }">
-        <v-btn>
+        <v-btn outlined class="mr-4" color="grey darken-2">
           <v-icon v-bind="attrs" v-on="on">mdi-plus</v-icon>
         </v-btn>
       </template>
       <v-card>
         <v-card-text>
           <v-container>
+            Add User Event
             <v-text-field
               v-model="event[0].name"
               label="Event Name"

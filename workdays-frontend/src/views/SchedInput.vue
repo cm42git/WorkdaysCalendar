@@ -1,6 +1,6 @@
 <template>
   <div class="text-center">
-    <v-dialog width="400" v-model="dialog">
+    <v-dialog width="400" v-model="dialog" persistent>
       <template v-slot:activator="{ on, attrs }">
         <v-btn color="blue lighten-2" dark v-bind="attrs" v-on="on">
           Schedule Data
@@ -11,46 +11,46 @@
         <v-card-text>
           <v-container>
             <v-text-field
-              v-model.number="daysOnInput"
+              v-model.number="schedDataLocal.daysOn"
               label="Days Working*"
               required
               type="number"
               :rules="[
-                () => daysOnInput > 0 || 'Must be greater than zero',
+                () => schedDataLocal.daysOn > 0 || 'Must be greater than zero',
               ]"
             ></v-text-field>
             <v-text-field
-              v-model.number="daysOffInput"
+              v-model.number="schedDataLocal.daysOff"
               label="Days Off*"
               required
               type="number"
               :rules="[
-                () => daysOffInput > 0 || 'Must be greater than zero',
+                () => schedDataLocal.daysOff > 0 || 'Must be greater than zero',
               ]"
             ></v-text-field>
             <v-text-field
-              v-model="dateInput"
+              v-model="schedDataLocal.startLineOne"
               label="First Line Start Date*"
               required
               type="date"
             ></v-text-field>
             <v-text-field
-              v-model.number="daysOnAltInput"
+              v-model.number="schedDataLocal.daysOnAlt"
               label="Days Working (alternate tour)"
               type="number"
               :rules="[
                 () =>
-                  daysOnAltInput >= 0 ||
+                  schedDataLocal.daysOnAlt >= 0 ||
                   'Must be greater than zero, or zero if N/A',
               ]"
             ></v-text-field>
             <v-text-field
-              v-model.number="daysOffAltInput"
+              v-model.number="schedDataLocal.daysOffAlt"
               label="Days Off (alternate tour)"
               type="number"
               :rules="[
                 () =>
-                  daysOffAltInput >= 0 ||
+                  schedDataLocal.daysOffAlt >= 0 ||
                   'Must be greater than zero, or zero if N/A',
               ]"
             ></v-text-field>
@@ -73,42 +73,35 @@ export default {
     return {
       dialog: false,
       dateInput: Date,
-      daysOnInput: 0,
-      daysOffInput: 0,
-      daysOnAltInput: 0,
-      daysOffAltInput: 0,
       schedDataLocal: {
         daysOn: Number,
         daysOff: Number,
         daysOnAlt: Number,
         daysOffAlt: Number,
         startLineOne: Date,
-        lineNum: 1,
+        lineNum: Number,
       },
     };
   },
   created() {
-    // if (this.$store.state.schedule) {
-      // this.schedDataLocal = this.$store.state.schedule;
-      this.dateInput = this.schedDataLocal.startLineOne;
-    // }
+    if (this.$store.state.schedule.daysOn > 0) {
+      this.schedDataLocal = Object.assign({}, this.$store.state.schedule);
+    } else {
+      this.schedDataLocal.daysOnAlt = 0;
+      this.schedDataLocal.daysOffAlt = 0;
+      this.schedDataLocal.lineNum = 1;
+    }
   },
   methods: {
     closeOnly() {
-      // this.schedDataLocal = this.$store.state.schedule;
+      this.schedDataLocal = Object.assign({}, this.$store.state.schedule);
       this.dialog = false;
     },
     saveData() {
-      this.schedDataLocal.daysOn = this.daysOnInput;
-      this.schedDataLocal.daysOff = this.daysOffInput;
-      this.schedDataLocal.startLineOne = this.dateInput;
-      this.schedDataLocal.daysOnAlt = this.daysOnAltInput;
-      this.schedDataLocal.daysOffAlt = this.daysOffAltInput;
-      this.schedDataLocal.lineNum = 1;
-      this.$store.commit("SET_SCHEDULE", this.schedDataLocal);
+      const temp = Object.assign({}, this.schedDataLocal);
+      this.$store.commit("SET_SCHEDULE", temp);
       this.$store.dispatch("pullEvents", { numMonths: 2 });
       this.dialog = false;
-      this.schedDataLocal = {};
     },
   },
 };

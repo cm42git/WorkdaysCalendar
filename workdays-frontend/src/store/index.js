@@ -3,13 +3,10 @@ import Vuex from "vuex";
 
 Vue.use(Vuex);
 
-// const schedData = localStorage.getItem("schedData");
-
 import ScheduleService from "@/service/ScheduleService";
 export default new Vuex.Store({
   state: {
-    // schedule: schedule || {},
-    schedule: /* schedData || */ {
+    schedule: {
       daysOn: Number,
       daysOff: Number,
       daysOnAlt: Number,
@@ -31,11 +28,9 @@ export default new Vuex.Store({
     },
     SET_SCHEDULE(state, sched) {
       state.schedule = sched;
-      // localStorage.setItem("schedData", JSON.stringify(state.schedule));
     },
     SET_LINE(state, line) {
       state.schedule.lineNum = line;
-      // localStorage.setItem("schedData", JSON.stringify(state.schedule));
     },
     SET_DISPLAY_MONTH(state, month) {
       state.displayMonth = month;
@@ -82,12 +77,10 @@ export default new Vuex.Store({
               category: "work",
             });
           });
-          // this.commit("SET_EVENTS", events);
           this.commit("DELETE_EVENTS", "work");
           this.commit("APPEND_EVENTS", events);
           console.log("Events updated.");
         });
-        // this.dispatch("pullHolidays");
       }
     },
     pullHolidays({ state }) {

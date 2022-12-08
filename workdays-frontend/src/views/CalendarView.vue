@@ -2,17 +2,23 @@
 
 <template>
   <div id="calendar">
-    <v-toolbar flat>
+    <v-toolbar flat dense>
+      <v-app-bar-nav-icon></v-app-bar-nav-icon>
       <v-btn outlined class="mr-4" color="grey darken-2" @click="setToday">
         Today
+      </v-btn>
+      <v-btn
+        outlined
+        class="mr-4"
+        color="grey darken-2"
+        @click="setMonthToggle"
+      >
+        Go To
       </v-btn>
       <v-btn fab text small color="grey darken-2" @click="prev">
         <v-icon small> mdi-chevron-left </v-icon>
       </v-btn>
-      <v-btn fab text small color="grey darken-2" @click="next">
-        <v-icon small> mdi-chevron-right </v-icon>
-      </v-btn>
-      <v-toolbar-title v-if="$refs.calendar">
+      <v-toolbar-title v-if="$refs.calendar" color="grey darken-2">
         {{ $refs.calendar.title }}
       </v-toolbar-title>
       <v-toolbar-title v-else>
@@ -23,19 +29,24 @@
           })
         }}
       </v-toolbar-title>
-      <v-spacer></v-spacer>
-      <SchedInput></SchedInput>
-      <v-spacer></v-spacer>
+      <v-btn fab text small color="grey darken-2" @click="next">
+        <v-icon small> mdi-chevron-right </v-icon>
+      </v-btn>
 
-      <v-text-field
-        v-model="schedData.lineNum"
-        class="mt-0 pt-0"
-        hide-details
-        single-line
-        type="number"
-        prefix="Line"
-        @input="updateLine"
-      ></v-text-field>
+      <v-spacer></v-spacer>
+      <SchedInput class="mr-4"></SchedInput>
+
+      <v-card outlined class="px-2" width="100">
+        <v-text-field
+          v-model="schedData.lineNum"
+          hide-details
+          single-line
+          type="number"
+          prefix="Line"
+          @input="updateLine"
+        ></v-text-field>
+      </v-card>
+      <AddEvent class="ml-4"></AddEvent>
       <v-spacer></v-spacer>
     </v-toolbar>
     <v-sheet height="600">
@@ -50,21 +61,12 @@
         v-model="selectedOpen"
         :close-on-content-click="false"
         :activator="selectedElement"
-        offset-x
+        max-width="350px"
+        offset-y
       >
-        <v-card color="grey lighten-4" min-width="350px" flat>
+        <v-card color="grey lighten-4" min-width="150px" flat>
           <v-toolbar :color="selectedEvent.color" dark>
-            <!-- <v-btn icon>
-              <v-icon>mdi-pencil</v-icon>
-            </v-btn> -->
             <v-toolbar-title v-html="selectedEvent.name"></v-toolbar-title>
-            <!-- <v-spacer></v-spacer>
-            <v-btn icon>
-              <v-icon>mdi-heart</v-icon>
-            </v-btn>
-            <v-btn icon>
-              <v-icon>mdi-dots-vertical</v-icon>
-            </v-btn> -->
           </v-toolbar>
           <v-card-text>
             <span v-html="selectedEvent.details"></span>
@@ -73,14 +75,22 @@
             <v-btn text color="secondary" @click="selectedOpen = false">
               Close
             </v-btn>
-            <v-btn text color="secondary" @click="deleteEvent">
-              Delete
-            </v-btn>
+            <v-btn text color="secondary" @click="deleteEvent"> Delete </v-btn>
           </v-card-actions>
         </v-card>
       </v-menu>
       <p></p>
-      <AddEvent></AddEvent>
+
+      <v-dialog max-width="290" v-model="showMonthPick">
+        <v-card>
+          <v-date-picker type="month" v-model="monthPick" dense>
+          </v-date-picker>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="blue lighten-2" @click="setMonth">OK</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
     </v-sheet>
   </div>
 </template>
@@ -109,12 +119,14 @@ export default {
         daysOnAlt: Number,
         daysOffAlt: Number,
         startLineOne: Date,
-        lineNum: 1,
+        lineNum: Number,
       },
       displayStart: Date.now(),
       selectedEvent: {},
       selectedElement: null,
       selectedOpen: false,
+      showMonthPick: false,
+      monthPick: "",
     };
   },
   created() {
@@ -125,15 +137,22 @@ export default {
     );
 
     if (!(this.$store.state.schedule.daysOn > 0)) {
-      this.dialogVisable = true;
+      this.schedData.lineNum = 1;
       console.log("No schedule data. Please update.");
       alert("No Schedule Data! Please update!");
     } else {
-      this.schedData = this.$store.state.schedule;
+      this.schedData = { ...this.$store.state.schedule };
       console.log("Loaded store schedule data.");
     }
   },
   methods: {
+    setMonthToggle() {
+      this.showMonthPick = !this.showMonthPick;
+    },
+    setMonth() {
+      this.value = this.monthPick + "-01";
+      this.showMonthPick = !this.showMonthPick;
+    },
     setToday() {
       this.value = "";
       this.displayStart = Date.now();
@@ -208,7 +227,7 @@ export default {
     deleteEvent() {
       this.$store.commit("DELETE_EVENT", this.selectedEvent);
       this.selectedOpen = false;
-    }
+    },
   },
 };
 </script>
