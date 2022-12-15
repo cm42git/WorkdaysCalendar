@@ -1,7 +1,8 @@
 <template>
   <div id="calendar">
     <v-toolbar flat dense>
-      <v-app-bar-nav-icon v-if="mobile"
+      <v-app-bar-nav-icon
+        v-if="mobile"
         @click.stop="navDrawer = !navDrawer"
       ></v-app-bar-nav-icon>
       <v-btn
@@ -76,7 +77,7 @@
     <SchedInput v-model="showSchedInput"></SchedInput>
     <AddEvent v-model="showAddEvent"></AddEvent>
 
-    <v-navigation-drawer v-model="navDrawer" absolute temporary height="240">
+    <v-navigation-drawer v-model="navDrawer" absolute temporary height="280">
       <v-list nav dense class="text-left">
         <v-list-item-group color="primary">
           <v-list-item @click="setToday">
@@ -119,6 +120,14 @@
               <v-list-item-title>Add Event</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
+          <v-list-item @click="clearStoreToggle">
+            <v-list-item-icon
+              ><v-icon>mdi-calendar-remove</v-icon></v-list-item-icon
+            >
+            <v-list-item-content>
+              <v-list-item-title>Delete Saved Events</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
         </v-list-item-group>
       </v-list>
     </v-navigation-drawer>
@@ -132,6 +141,7 @@
         @change="updateCalendar"
         @click:event="showEvent"
       ></v-calendar>
+
       <v-menu
         v-model="selectedOpen"
         :close-on-content-click="false"
@@ -155,6 +165,8 @@
         </v-card>
       </v-menu>
       <p></p>
+
+      <v-icon class="float-end" @click="clearStoreToggle">mdi-calendar-remove</v-icon>
 
       <v-dialog max-width="290" v-model="showMonthPick">
         <v-card>
@@ -180,6 +192,18 @@
           <v-card-actions>
             <v-btn color="blue lighten-2" @click="showLineDialog = false">
               OK
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+
+      <v-dialog max-width="180" v-model="showClearStore">
+        <v-card>
+          Really delete all saved events?
+          <v-card-actions>
+            <v-btn color="blue lighten-2" @click="clearStore"> Yes </v-btn>
+            <v-btn color="blue lighten-2" @click="showClearStore = false">
+              No
             </v-btn>
           </v-card-actions>
         </v-card>
@@ -224,6 +248,7 @@ export default {
       showSchedInput: false,
       showAddEvent: false,
       showLineDialog: false,
+      showClearStore: false,
     };
   },
   created() {
@@ -245,7 +270,7 @@ export default {
   computed: {
     mobile() {
       return this.$vuetify.breakpoint.smAndDown;
-        },
+    },
   },
   methods: {
     schedInputShow() {
@@ -262,6 +287,10 @@ export default {
     },
     setLineToggle() {
       this.showLineDialog = !this.showLineDialog;
+      this.navDrawer = false;
+    },
+    clearStoreToggle() {
+      this.showClearStore = !this.showClearStore;
       this.navDrawer = false;
     },
     setMonth() {
@@ -343,6 +372,17 @@ export default {
     deleteEvent() {
       this.$store.commit("DELETE_EVENT", this.selectedEvent);
       this.selectedOpen = false;
+    },
+    clearStore() {
+      this.$store.commit("DELETE_STORE");
+      this.showClearStore = false;
+      this.setToday;
+      this.$store.commit(
+        "SET_DISPLAY_MONTH",
+        new Date(this.displayStart).toISOString().substring(0, 7) + "-01"
+      );
+      this.$store.dispatch("pullHolidays");
+      this.updateCalendar;
     },
   },
 };

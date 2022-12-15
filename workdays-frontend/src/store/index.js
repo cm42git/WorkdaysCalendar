@@ -26,6 +26,21 @@ export default new Vuex.Store({
         );
       }
     },
+    DELETE_STORE() {
+      localStorage.removeItem("store");
+      this.replaceState({
+        schedule: {
+          daysOn: Number,
+          daysOff: Number,
+          daysOnAlt: Number,
+          daysOffAlt: Number,
+          startLineOne: Date,
+          lineNum: Number,
+        },
+        events: [],
+        displayMonth: Date,
+      });
+    },
     SET_SCHEDULE(state, sched) {
       state.schedule = sched;
     },
