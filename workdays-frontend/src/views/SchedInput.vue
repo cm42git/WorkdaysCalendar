@@ -1,11 +1,6 @@
 <template>
   <div class="text-center">
-    <v-dialog width="400" v-model="dialog" persistent>
-      <template v-slot:activator="{ on, attrs }">
-        <v-btn color="blue lighten-2" dark v-bind="attrs" v-on="on">
-          Schedule Data
-        </v-btn>
-      </template>
+    <v-dialog width="400" v-model="show" persistent>
       <v-card>
         <v-card-title>Recurring Work Tours Information</v-card-title>
         <v-card-text>
@@ -68,7 +63,8 @@
 </template>
 <script>
 export default {
-  props: {},
+  name: "sched-input",
+  props: { value: Boolean },
   data() {
     return {
       dialog: false,
@@ -92,16 +88,29 @@ export default {
       this.schedDataLocal.lineNum = 1;
     }
   },
+  computed: {
+    show: {
+      get() {
+        return this.value;
+      },
+      set(value) {
+        this.$emit("input", value);
+      },
+    },
+  },
   methods: {
     closeOnly() {
       this.schedDataLocal = Object.assign({}, this.$store.state.schedule);
-      this.dialog = false;
+      this.show = false;
     },
     saveData() {
       const temp = Object.assign({}, this.schedDataLocal);
+      if (this.$store.state.schedule.daysOn > 0) {
+        temp.lineNum = this.$store.state.schedule.lineNum;
+      }
       this.$store.commit("SET_SCHEDULE", temp);
       this.$store.dispatch("pullEvents", { numMonths: 2 });
-      this.dialog = false;
+      this.show = false;
     },
   },
 };

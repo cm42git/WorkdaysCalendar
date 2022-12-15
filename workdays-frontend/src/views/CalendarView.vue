@@ -1,13 +1,20 @@
-"use strict"
-
 <template>
   <div id="calendar">
     <v-toolbar flat dense>
-      <v-app-bar-nav-icon></v-app-bar-nav-icon>
-      <v-btn outlined class="mr-4" color="grey darken-2" @click="setToday">
+      <v-app-bar-nav-icon v-if="mobile"
+        @click.stop="navDrawer = !navDrawer"
+      ></v-app-bar-nav-icon>
+      <v-btn
+        v-if="!mobile"
+        outlined
+        class="mr-4"
+        color="grey darken-2"
+        @click="setToday"
+      >
         Today
       </v-btn>
       <v-btn
+        v-if="!mobile"
         outlined
         class="mr-4"
         color="grey darken-2"
@@ -34,9 +41,17 @@
       </v-btn>
 
       <v-spacer></v-spacer>
-      <SchedInput class="mr-4"></SchedInput>
 
-      <v-card outlined class="px-2" width="100">
+      <v-btn
+        v-if="!mobile"
+        class="mr-4"
+        color="blue lighten-2"
+        dark
+        @click="showSchedInput = !showSchedInput"
+        >Schedule Input</v-btn
+      >
+
+      <v-card v-if="!mobile" outlined class="px-2 mr-4" width="100">
         <v-text-field
           v-model="schedData.lineNum"
           hide-details
@@ -46,13 +61,73 @@
           @input="updateLine"
         ></v-text-field>
       </v-card>
-      <AddEvent class="ml-4"></AddEvent>
+
+      <v-btn
+        v-if="!mobile"
+        outlined
+        class="mr-4"
+        color="grey darken-2"
+        @click="showAddEvent = !showAddEvent"
+        ><v-icon>mdi-plus</v-icon></v-btn
+      >
       <v-spacer></v-spacer>
     </v-toolbar>
+
+    <SchedInput v-model="showSchedInput"></SchedInput>
+    <AddEvent v-model="showAddEvent"></AddEvent>
+
+    <v-navigation-drawer v-model="navDrawer" absolute temporary height="240">
+      <v-list nav dense class="text-left">
+        <v-list-item-group color="primary">
+          <v-list-item @click="setToday">
+            <v-list-item-icon
+              ><v-icon>mdi-calendar-month</v-icon></v-list-item-icon
+            >
+            <v-list-item-content>
+              <v-list-item-title>Go To Today</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+          <v-list-item @click="setMonthToggle">
+            <v-list-item-icon
+              ><v-icon>mdi-calendar-search</v-icon></v-list-item-icon
+            >
+            <v-list-item-content>
+              <v-list-item-title>Select Month</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+          <v-list-item @click="schedInputShow">
+            <v-list-item-icon
+              ><v-icon>mdi-calendar-question</v-icon></v-list-item-icon
+            >
+            <v-list-item-content>
+              <v-list-item-title>Schedule Data</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+          <v-list-item @click="setLineToggle">
+            <v-list-item-icon
+              ><v-icon>mdi-calendar-star</v-icon></v-list-item-icon
+            >
+            <v-list-item-content>
+              <v-list-item-title>Change Line</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+          <v-list-item @click="addEventShow">
+            <v-list-item-icon
+              ><v-icon>mdi-calendar-plus</v-icon></v-list-item-icon
+            >
+            <v-list-item-content>
+              <v-list-item-title>Add Event</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list-item-group>
+      </v-list>
+    </v-navigation-drawer>
+
     <v-sheet height="600">
       <v-calendar
         ref="calendar"
         v-model="value"
+        color="primary"
         :events="this.$store.state.events"
         @change="updateCalendar"
         @click:event="showEvent"
@@ -88,6 +163,24 @@
           <v-card-actions>
             <v-spacer></v-spacer>
             <v-btn color="blue lighten-2" @click="setMonth">OK</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+
+      <v-dialog max-width="150" v-model="showLineDialog">
+        <v-card>
+          <v-text-field
+            v-model="schedData.lineNum"
+            class="px-3"
+            type="number"
+            prefix="Line"
+            label="Set Line Number:"
+            @input="updateLine"
+          ></v-text-field>
+          <v-card-actions>
+            <v-btn color="blue lighten-2" @click="showLineDialog = false">
+              OK
+            </v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -127,6 +220,10 @@ export default {
       selectedOpen: false,
       showMonthPick: false,
       monthPick: "",
+      navDrawer: false,
+      showSchedInput: false,
+      showAddEvent: false,
+      showLineDialog: false,
     };
   },
   created() {
@@ -145,9 +242,27 @@ export default {
       console.log("Loaded store schedule data.");
     }
   },
+  computed: {
+    mobile() {
+      return this.$vuetify.breakpoint.smAndDown;
+        },
+  },
   methods: {
+    schedInputShow() {
+      this.navDrawer = false;
+      this.showSchedInput = !this.showSchedInput;
+    },
+    addEventShow() {
+      this.navDrawer = false;
+      this.showAddEvent = !this.showAddEvent;
+    },
     setMonthToggle() {
       this.showMonthPick = !this.showMonthPick;
+      this.navDrawer = false;
+    },
+    setLineToggle() {
+      this.showLineDialog = !this.showLineDialog;
+      this.navDrawer = false;
     },
     setMonth() {
       this.value = this.monthPick + "-01";
@@ -156,6 +271,7 @@ export default {
     setToday() {
       this.value = "";
       this.displayStart = Date.now();
+      this.navDrawer = false;
     },
     prev() {
       this.$refs.calendar.prev();

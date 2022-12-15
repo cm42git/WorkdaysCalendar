@@ -1,11 +1,6 @@
 <template>
   <div class="text-right">
-    <v-dialog width="300" v-model="addDialog">
-      <template v-slot:activator="{ on, attrs }">
-        <v-btn outlined class="mr-4" color="grey darken-2">
-          <v-icon v-bind="attrs" v-on="on">mdi-plus</v-icon>
-        </v-btn>
-      </template>
+    <v-dialog width="300" v-model="show">
       <v-card>
         <v-card-text>
           <v-container>
@@ -40,6 +35,7 @@
 </template>
 <script>
 export default {
+  props:{value: Boolean},
   data() {
     return {
       addDialog: false,
@@ -55,13 +51,23 @@ export default {
       ],
     };
   },
+  computed: {
+show: {
+      get() {
+        return this.value;
+      },
+      set(value) {
+        this.$emit('input',value)
+      }
+    }
+  },
   methods: {
     closeOnly() {
-      this.addDialog = false;
+      this.show = false;
     },
     saveData() {
       this.$store.commit("APPEND_EVENTS", this.event);
-      this.addDialog = false;
+      this.show = false;
     },
   },
 };
